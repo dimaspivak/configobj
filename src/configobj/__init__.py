@@ -125,6 +125,7 @@ OPTION_DEFAULTS = {
     'default_encoding': None,
     'unrepr': False,
     'write_empty_values': False,
+    'list_item_delimiter': ', ',
 }
 
 # this could be replaced if six is used for compatibility, or there are no
@@ -1145,7 +1146,8 @@ class ConfigObj(Section):
                  interpolation=True, raise_errors=False, list_values=True,
                  create_empty=False, file_error=False, stringify=True,
                  indent_type=None, default_encoding=None, unrepr=False,
-                 write_empty_values=False, _inspec=False):
+                 write_empty_values=False, _inspec=False,
+                 list_item_delimiter=', '):
         """
         Parse a config file or create a config file object.
 
@@ -1153,7 +1155,8 @@ class ConfigObj(Section):
                     interpolation=True, raise_errors=False, list_values=True,
                     create_empty=False, file_error=False, stringify=True,
                     indent_type=None, default_encoding=None, unrepr=False,
-                    write_empty_values=False, _inspec=False)``
+                    write_empty_values=False, _inspec=False,
+                    list_item_delimiter=', ')``
         """
         self._inspec = _inspec
         # init the superclass
@@ -1167,7 +1170,8 @@ class ConfigObj(Section):
                     'create_empty': create_empty, 'file_error': file_error,
                     'stringify': stringify, 'indent_type': indent_type,
                     'default_encoding': default_encoding, 'unrepr': unrepr,
-                    'write_empty_values': write_empty_values}
+                    'write_empty_values': write_empty_values,
+                    'list_item_delimiter': list_item_delimiter}
 
         if options is None:
             options = _options
@@ -1318,6 +1322,7 @@ class ConfigObj(Section):
         self.BOM = False
         self.newlines = None
         self.write_empty_values = options['write_empty_values']
+        self.list_item_delimiter = options['list_item_delimiter']
         self.unrepr = options['unrepr']
 
         self.initial_comment = []
@@ -1756,7 +1761,8 @@ class ConfigObj(Section):
                 return ','
             elif len(value) == 1:
                 return self._quote(value[0], multiline=False) + ','
-            return ', '.join([self._quote(val, multiline=False)
+            return self.list_item_delimiter.join([self._quote(val,
+                                                              multiline=False)
                 for val in value])
         if not isinstance(value, six.string_types):
             if self.stringify:
